@@ -18,7 +18,7 @@
 
 ## 3. API health endpoints
 
-- [ ] 3.1 Implement `HealthService`: liveness returns a fixed body; readiness pings all dependencies at once with a 2-second timeout each and maps results to `up`/`down` with the fixed categories `timeout`/`unreachable`. Verify: unit tests cover all-up, postgres-down, redis-down, a hung dependency reported `down` within the timeout, and an error message containing a URL never appearing in the result.
+- [x] 3.1 Implement `HealthService`: liveness returns a fixed body; readiness pings all dependencies at once with a 2-second timeout each and maps results to `up`/`down` with the fixed categories `timeout`/`unreachable`. Verify: unit tests cover all-up, postgres-down, redis-down, a hung dependency reported `down` within the timeout, and an error message containing a URL never appearing in the result.
 - [ ] 3.2 Implement `HealthController` under `/api/v1/health` and `/api/v1/health/ready` (503 when any check is down), plus `main.ts` with the global `api` prefix, URI versioning (default `1`), JSON `ConsoleLogger`, Swagger at `/api/docs`, shutdown hooks, and config parsing before listen. Verify: supertest e2e tests with stubbed services assert 200 liveness while dependencies are down, 200 readiness when all up, and 503 when one is down.
 - [ ] 3.3 Verify startup behaviour by hand: run `pnpm --filter @diffsentinel/api build`, then `node dist/main.js` without `DATABASE_URL` and confirm a non-zero exit and that no port is opened. Document `pnpm --filter @diffsentinel/api dev` and the endpoints in `README.md`.
 
