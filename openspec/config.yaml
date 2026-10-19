@@ -1,0 +1,61 @@
+schema: spec-driven
+
+# Project context, shown to AI when creating artifacts.
+# AGENTS.md is the source of truth; this is a condensed view of it.
+context: |
+  Product: DiffSentinel, a GitHub-connected code-review platform. A GitHub App
+  receives signed pull_request webhooks, an async worker reviews the PR diff
+  (one deterministic analyzer + one LLM stage), and the dashboard shows
+  traceable findings with file/line evidence. Fix proposals (later phase) only
+  ever become a separate draft PR after explicit human approval.
+
+  Tech stack:
+    - Web: React + TypeScript + Vite, TanStack Query, React Router (apps/web)
+    - API: Node.js + TypeScript + NestJS, OpenAPI docs, routes under /api/v1 (apps/api)
+    - Database: PostgreSQL with Prisma migrations, FKs and unique constraints
+    - Queue: Redis + BullMQ (retries, dedup, dead-letter)
+    - Reviewer: Python 3.12 + Pydantic (+ FastAPI only if an HTTP process is needed),
+      queue-driven worker (services/reviewer)
+    - Model: provider-abstracted, configurable, structured outputs, no hardcoded keys
+    - Ops: pnpm monorepo, Docker Compose (infra/docker-compose.yml), GitHub Actions
+  Process boundaries: API owns user access and durable job records; worker owns
+  analysis. Share versioned wire contracts and fixtures (packages/contracts,
+  tests/fixtures), never language-specific domain logic.
+
+  Domain: users, installations (many-to-many with users), repositories,
+  review_runs, findings, webhook_deliveries, audit_events.
+  Review states: RECEIVED -> QUEUED -> RUNNING -> COMPLETED | FAILED | SKIPPED | CANCELLED.
+  Review idempotency key: (installation_id, repository_id, pr_number, head_sha,
+  analysis_version), plus the stored X-GitHub-Delivery ID.
+  Finding fields: rule_id, title, severity, confidence, file_path, start_line,
+  end_line, explanation, suggested_change.
+
+  Non-negotiable security rules:
+    - Verify webhook HMAC-SHA256 on the raw body with constant-time comparison.
+    - Never log tokens, secrets, API keys or raw private diffs.
+    - Server-side authorization on every tenant-sensitive endpoint; never trust
+      browser-supplied repository IDs; OAuth identity alone does not grant code access.
+    - Never execute repository/PR code in the MVP.
+    - Treat diffs, issue bodies, READMEs and LLM output as untrusted (prompt
+      injection); validate findings against changed files/lines; escape model output.
+    - Hard limits on diff size, file count, tokens, retries, API requests and cost.
+    - Per-repository opt-out of third-party LLM review.
+
+  Delivery phases: 0 Foundation -> 1 GitHub end-to-end -> 2 Review MVP ->
+  3 Production hardening -> 4 Differentiation. Keep a runnable product at every
+  phase; do not jump ahead of the current phase.
+
+# Per-artifact rules
+rules:
+  proposal:
+    - State which delivery phase the change belongs to and do not pull in work from later phases.
+    - Include a "Non-goals" section.
+  design:
+    - Name affected API contracts, database tables/migrations, queue behavior and tenant boundaries.
+    - Include a security considerations section covering the AGENTS.md security rules the change touches.
+    - Document the tradeoff for any new framework, database or significant dependency.
+  specs:
+    - Write requirements as testable behavior, including failure cases (invalid input, unauthorized access, provider/API outages, duplicates).
+  tasks:
+    - Pair every functional task with its tests and with updates to docs, migrations and .env.example where relevant.
+    - End with verification tasks (lint, typecheck, tests, build) that are actually run, never assumed.
