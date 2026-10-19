@@ -18,7 +18,7 @@ DiffSentinel is a GitHub-connected code-review platform. It reviews pull request
 
 ## Prerequisites
 
-- Node.js 22 (see `.nvmrc`)
+- Node.js 22.22 or newer in the 22 line (see `.nvmrc`)
 - pnpm 9 (`npm install -g pnpm@9`)
 - [uv](https://docs.astral.sh/uv/) for the Python service (it installs Python 3.12 for you)
 - Docker Desktop (or Docker Engine with Compose v2) for the full stack
