@@ -38,7 +38,7 @@
 ## 6. Containers and Docker Compose
 
 - [x] 6.1 Write `apps/api/Dockerfile` (multi-stage: pnpm via npm, frozen filtered install, `prisma generate`, `nest build`, `pnpm deploy --prod`, runtime as `node` user). Verify: `docker build -f apps/api/Dockerfile .` succeeds.
-- [ ] 6.2 Write `services/reviewer/Dockerfile` (`python:3.12-slim`, pinned `uv` binary, `uv sync --frozen --no-dev`, non-root user). Verify: `docker build -f services/reviewer/Dockerfile .` succeeds.
+- [x] 6.2 Write `services/reviewer/Dockerfile` (`python:3.12-slim`, pinned `uv` binary, `uv sync --frozen --no-dev`, non-root user). Verify: `docker build -f services/reviewer/Dockerfile .` succeeds.
 - [ ] 6.3 Write `apps/web/Dockerfile` and `apps/web/nginx.conf` (build stage, then `nginx-unprivileged` on 8080 with SPA fallback and `/api/` proxied to `api:3000`). Verify: `docker build -f apps/web/Dockerfile .` succeeds.
 - [ ] 6.4 Write `infra/docker-compose.yml`:
   - postgres (17-alpine, named volume, `pg_isready`) and redis (7.4-alpine, `redis-cli ping`), with ports bound to `127.0.0.1`;
