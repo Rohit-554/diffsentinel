@@ -10,9 +10,9 @@
 
 ## 2. API configuration and infrastructure clients
 
-- [ ] 2.1 Scaffold `apps/api` (`@diffsentinel/api`): `package.json`, `tsconfig.json`/`tsconfig.build.json` extending the base config (CommonJS via `module: nodenext`, decorators enabled), `nest-cli.json`, Jest + ts-jest config, and dependencies (NestJS 11, `@nestjs/swagger`, zod, ioredis, Prisma). Verify: `pnpm --filter @diffsentinel/api typecheck` runs on an empty `main.ts`.
+- [x] 2.1 Scaffold `apps/api` (`@diffsentinel/api`): `package.json`, `tsconfig.json`/`tsconfig.build.json` extending the base config (CommonJS via `module: nodenext`, decorators enabled), `nest-cli.json`, Jest + ts-jest config, and dependencies (NestJS 11, `@nestjs/swagger`, zod, ioredis 5, Prisma 6; see design D5 for the version pins). Verify: `pnpm --filter @diffsentinel/api typecheck` runs on an empty `main.ts`.
 - [ ] 2.2 Implement the zod environment schema and `parseEnv` (`DATABASE_URL`, `REDIS_URL` required; `API_PORT`, `LOG_LEVEL`, `NODE_ENV` defaulted). Error messages list variable names and issues only. Write unit tests for: missing variable, malformed URL, port 70000, a malformed secret-bearing value not appearing in the error, and defaults applied. Verify: `pnpm --filter @diffsentinel/api test` passes.
-- [ ] 2.3 Add a Prisma schema with a PostgreSQL datasource and generator only (no models), following current Prisma docs for the driver adapter and CommonJS client output. Add a `prisma:generate` script. Verify: `pnpm --filter @diffsentinel/api prisma:generate` succeeds.
+- [ ] 2.3 Add a Prisma schema with a PostgreSQL datasource and generator only (no models), using the Prisma 6 built-in engine and the default CommonJS client. Add a `prisma:generate` script. Verify: `pnpm --filter @diffsentinel/api prisma:generate` succeeds.
 - [ ] 2.4 Implement `PrismaService` and `RedisService` with `ping()` and shutdown hooks; Redis uses `enableOfflineQueue: false` and an `error` listener that logs codes only. Verify: unit tests with mocked clients cover a successful ping and the error listener not logging the URL.
 - [ ] 2.5 Add the API variables to `.env.example` with comments. Verify: every key read by the zod schema appears in `.env.example` (unit test or script compares the two).
 

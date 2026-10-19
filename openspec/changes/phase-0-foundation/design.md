@@ -73,11 +73,12 @@ The root `pnpm-workspace.yaml` lists `apps/*` and `packages/*`. Root scripts cal
 ### D5. Prisma set up now with an empty schema; Redis client is ioredis
 - `AGENTS.md` names Prisma for migrations, and Phase 1 adds the first tables. Setting it up now means the migrate workflow, the `generate` step in CI and Docker, and the Postgres connection are proven early.
 - The readiness check runs `SELECT 1` through the Prisma client.
-- Use the current Prisma major version and follow its setup at apply time:
-  - the PostgreSQL driver adapter;
-  - the generated client output path;
-  - CommonJS output, to fit D3.
-- Confirm these details against the current Prisma docs; don't assume the older defaults.
+- **Version pins (decided during apply, 2026-10-19):** NestJS **11**, Prisma **6**, ioredis **5**.
+  - NestJS 12 is ESM-only, which conflicts with the CommonJS build in D3 and with Jest.
+  - Prisma 7 requires Node ≥22.12, but the local toolchain is Node 22.11.
+  - ioredis 5 is the line BullMQ is built against.
+  - Moving to NestJS 12 and Prisma 7 (ESM, Vitest+SWC, newer Node) is a separate, later change.
+- Prisma 6 uses its built-in query engine, so no driver adapter is needed. The Alpine image needs `openssl` for the engine.
 - Redis uses ioredis because BullMQ (Phase 1) requires it.
   - Settings: `enableOfflineQueue: false` and `maxRetriesPerRequest: 1`, so a ping fails fast instead of queuing.
   - An `error` listener logs the error code only, which prevents unhandled-error crashes and log floods.
