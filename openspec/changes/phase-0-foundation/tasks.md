@@ -54,7 +54,7 @@
   - `docker compose ps` shows Postgres and Redis on `127.0.0.1`.
 
   If Docker can't start, record this task as not run and say why.
-- [ ] 6.6 Check that data persists and can be reset: create a scratch table with `psql`, run `down` then `up` and confirm it still exists, then run `down -v` then `up` and confirm it is gone. Document compose usage (`up`, `--env-file .env`, `down -v`) in `README.md`.
+- [x] 6.6 Check that data persists and can be reset: create a scratch table with `psql`, run `down` then `up` and confirm it still exists, then run `down -v` then `up` and confirm it is gone. Document compose usage (`up`, `--env-file .env`, `down -v`) in `README.md`.
 
 ## 7. Continuous integration
 

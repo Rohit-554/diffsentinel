@@ -76,3 +76,29 @@ pnpm --filter @diffsentinel/web build   # static files in apps/web/dist
 ```
 
 The dev server proxies `/api` to `VITE_API_PROXY_TARGET` (default `http://localhost:3000`), so the browser talks to one origin and no CORS setup is needed. Start the API first. If it isn't running, the page shows "API unavailable".
+
+## Full stack with Docker Compose
+
+One command builds and starts PostgreSQL, Redis, the API, the reviewer and the web app, in dependency order. `--wait` returns once every service reports healthy.
+
+```bash
+docker compose -f infra/docker-compose.yml up -d --build --wait
+```
+
+No `.env` file is needed: every variable has a local default. To override values, add `--env-file .env`. All published ports bind to `127.0.0.1` only.
+
+| Service  | URL / port                                  |
+| -------- | ------------------------------------------- |
+| web      | http://localhost:8080 (also proxies `/api`) |
+| api      | http://localhost:3000/api/v1/health/ready   |
+| reviewer | http://localhost:8000/health/ready          |
+| postgres | `localhost:5433` (`POSTGRES_HOST_PORT`)     |
+| redis    | `localhost:6379` (`REDIS_HOST_PORT`)        |
+
+PostgreSQL is published on 5433 so it doesn't clash with a locally installed PostgreSQL on 5432. Its data lives in the `pgdata` volume:
+
+```bash
+docker compose -f infra/docker-compose.yml logs -f api   # follow one service's logs
+docker compose -f infra/docker-compose.yml down          # stop, keep data
+docker compose -f infra/docker-compose.yml down -v       # stop and delete all data
+```
