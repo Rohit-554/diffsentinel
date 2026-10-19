@@ -1,0 +1,136 @@
+# DiffSentinel
+
+[![CI](https://github.com/Rohit-554/diffsentinel/actions/workflows/ci.yml/badge.svg)](https://github.com/Rohit-554/diffsentinel/actions/workflows/ci.yml)
+
+DiffSentinel is a GitHub-connected code-review platform. It reviews pull requests, explains actionable findings with file and line evidence, and (in a later phase) proposes fixes as separate draft pull requests that a person must approve.
+
+**Status:** Phase 0 (foundation). The services start, report their health, and pass lint, typecheck and tests. GitHub integration and code review are not built yet. See [`AGENTS.md`](AGENTS.md) for the full product plan.
+
+## Repository layout
+
+| Path                | What it is                                                 |
+| ------------------- | ---------------------------------------------------------- |
+| `apps/web`          | React + TypeScript + Vite dashboard                        |
+| `apps/api`          | NestJS API (`/api/v1`), later GitHub webhooks and auth     |
+| `services/reviewer` | Python 3.12 reviewer service, later the analysis worker    |
+| `packages/config`   | Shared TypeScript configuration                            |
+| `infra`             | Docker Compose for the full local stack                    |
+| `docs`              | Architecture, data model, threat model and decision record |
+| `openspec`          | OpenSpec change proposals and specs                        |
+
+## Prerequisites
+
+- Node.js 22.22 or newer in the 22 line (see `.nvmrc`)
+- pnpm 9 (`npm install -g pnpm@9`)
+- [uv](https://docs.astral.sh/uv/) for the Python service (it installs Python 3.12 for you)
+- Docker Desktop (or Docker Engine with Compose v2) for the full stack
+
+## Install
+
+```bash
+pnpm install
+cp .env.example .env   # optional: only needed to override defaults
+```
+
+## API (`apps/api`)
+
+The API reads its settings from environment variables (see `.env.example`). It stops at startup, before opening its port, if `DATABASE_URL` or `REDIS_URL` is missing or invalid. Error messages name the variable but never print its value.
+
+```bash
+pnpm --filter @diffsentinel/api prisma:generate   # once after install
+pnpm --filter @diffsentinel/api dev               # watch mode on http://localhost:3000
+pnpm --filter @diffsentinel/api test
+```
+
+When run directly on the host, the API needs PostgreSQL and Redis reachable at the URLs in your environment, for example from the Docker Compose stack below. Without them, the API still starts, but readiness reports `503`.
+
+| Endpoint                   | Purpose                                                                           |
+| -------------------------- | --------------------------------------------------------------------------------- |
+| `GET /api/v1/health`       | Liveness. `200` whenever the process is running; makes no dependency calls.       |
+| `GET /api/v1/health/ready` | Readiness. `200` if PostgreSQL and Redis both answer within 2 s, otherwise `503`. |
+| `GET /api/docs`            | OpenAPI (Swagger) UI. The raw document is at `/api/docs-json`.                    |
+
+## Reviewer (`services/reviewer`)
+
+The reviewer is a Python 3.12 service managed by uv. In Phase 0 it only serves health endpoints; in Phase 1 it becomes the queue-driven analysis worker. Like the API, it stops at startup if `REDIS_URL` is missing or invalid. When run from `services/reviewer` it also reads the repository-root `.env`.
+
+```bash
+cd services/reviewer
+uv sync                 # installs Python 3.12 if needed, plus dependencies
+uv run reviewer         # serves on http://localhost:8000 (REVIEWER_PORT)
+uv run pytest           # tests
+uv run ruff check . && uv run ruff format --check . && uv run mypy
+```
+
+| Endpoint            | Purpose                                                        |
+| ------------------- | -------------------------------------------------------------- |
+| `GET /health`       | Liveness. `200` whenever the process is running.               |
+| `GET /health/ready` | Readiness. `200` if Redis answers within 2 s, otherwise `503`. |
+
+## Web (`apps/web`)
+
+A React + Vite dashboard. In Phase 0 it has a single page that shows the system status, read from the API readiness endpoint and refreshed every 10 seconds.
+
+```bash
+pnpm --filter @diffsentinel/web dev     # http://localhost:5173
+pnpm --filter @diffsentinel/web test
+pnpm --filter @diffsentinel/web build   # static files in apps/web/dist
+```
+
+The dev server proxies `/api` to `VITE_API_PROXY_TARGET` (default `http://localhost:3000`), so the browser talks to one origin and no CORS setup is needed. Start the API first. If it isn't running, the page shows "API unavailable".
+
+## Full stack with Docker Compose
+
+One command builds and starts PostgreSQL, Redis, the API, the reviewer and the web app, in dependency order. `--wait` returns once every service reports healthy.
+
+```bash
+docker compose -f infra/docker-compose.yml up -d --build --wait
+```
+
+No `.env` file is needed: every variable has a local default. To override values, add `--env-file .env`. All published ports bind to `127.0.0.1` only.
+
+| Service  | URL / port                                  |
+| -------- | ------------------------------------------- |
+| web      | http://localhost:8080 (also proxies `/api`) |
+| api      | http://localhost:3000/api/v1/health/ready   |
+| reviewer | http://localhost:8000/health/ready          |
+| postgres | `localhost:5433` (`POSTGRES_HOST_PORT`)     |
+| redis    | `localhost:6379` (`REDIS_HOST_PORT`)        |
+
+PostgreSQL is published on 5433 so it doesn't clash with a locally installed PostgreSQL on 5432. Its data lives in the `pgdata` volume:
+
+```bash
+docker compose -f infra/docker-compose.yml logs -f api   # follow one service's logs
+docker compose -f infra/docker-compose.yml down          # stop, keep data
+docker compose -f infra/docker-compose.yml down -v       # stop and delete all data
+```
+
+## Quality gates
+
+CI (`.github/workflows/ci.yml`) runs on every push and pull request with a read-only token and no secrets. Run the same checks locally before pushing:
+
+```bash
+# TypeScript: node job
+pnpm install --frozen-lockfile
+pnpm --filter @diffsentinel/api prisma:generate
+pnpm lint          # ESLint (type-checked) + Prettier check
+pnpm typecheck
+pnpm test          # Jest (api) + Vitest (web)
+pnpm build
+
+# Python: python job (from services/reviewer)
+uv sync --frozen
+uv run ruff check .
+uv run ruff format --check .
+uv run mypy
+uv run pytest
+
+# Compose smoke test: compose-smoke job (from the repository root)
+docker compose -f infra/docker-compose.yml up -d --build --wait --wait-timeout 240
+curl -fsS http://127.0.0.1:3000/api/v1/health/ready
+curl -fsS http://127.0.0.1:8000/health/ready
+curl -fsS http://127.0.0.1:8080/api/v1/health/ready
+docker compose -f infra/docker-compose.yml down -v
+```
+
+Installs use the committed lockfiles only (`pnpm-lock.yaml`, `services/reviewer/uv.lock`), so a dependency change without a lockfile update fails CI.

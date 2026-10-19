@@ -1,0 +1,15 @@
+// DiffSentinel database schema.
+// Phase 0 has no models: Prisma is wired up so the connection, client
+// generation and migration workflow are proven before Phase 1 adds tables.
+// See docs/data-model.md for the planned tables.
+
+generator client {
+  provider      = "prisma-client-js"
+  // "native" for local development, musl for the node:22-alpine image.
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
