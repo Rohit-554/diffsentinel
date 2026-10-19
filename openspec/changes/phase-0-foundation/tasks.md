@@ -58,7 +58,7 @@
 
 ## 7. Continuous integration
 
-- [ ] 7.1 Write `.github/workflows/ci.yml` with `permissions: contents: read`, triggers on `push` and `pull_request`, and three jobs:
+- [x] 7.1 Write `.github/workflows/ci.yml` with `permissions: contents: read`, triggers on `push` and `pull_request`, and three jobs:
   - **node:** frozen install, `prisma generate`, lint, typecheck, test, build.
   - **python:** `uv sync --frozen`, ruff check and format check, mypy, pytest.
   - **compose-smoke:** needs both; `up --wait`, curl both readiness endpoints, print logs on failure.

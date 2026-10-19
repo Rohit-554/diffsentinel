@@ -6,22 +6,14 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   {
-    ignores: [
-      "**/node_modules/**",
-      "**/dist/**",
-      "**/coverage/**",
-      "**/.venv/**",
-      "services/**",
-    ],
+    ignores: ["**/node_modules/**", "**/dist/**", "**/coverage/**", "**/.venv/**", "services/**"],
   },
   js.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
   {
     languageOptions: {
       parserOptions: {
-        projectService: {
-          allowDefaultProject: ["*.mjs", "*.js", "apps/*/*.mjs", "apps/*/*.js"],
-        },
+        projectService: true,
         tsconfigRootDir: import.meta.dirname,
       },
     },
@@ -37,8 +29,13 @@ export default tseslint.config(
     },
   },
   {
+    // Plain JS config files are not part of any tsconfig, so lint them without type information.
     files: ["**/*.mjs", "**/*.js"],
-    languageOptions: { globals: globals.node },
+    ...tseslint.configs.disableTypeChecked,
+    languageOptions: {
+      ...tseslint.configs.disableTypeChecked.languageOptions,
+      globals: globals.node,
+    },
   },
   {
     files: ["apps/api/**/*.ts"],
