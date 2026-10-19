@@ -29,3 +29,21 @@ DiffSentinel is a GitHub-connected code-review platform. It reviews pull request
 pnpm install
 cp .env.example .env   # optional: only needed to override defaults
 ```
+
+## API (`apps/api`)
+
+The API reads its settings from environment variables (see `.env.example`). It stops at startup, before opening its port, if `DATABASE_URL` or `REDIS_URL` is missing or invalid. Error messages name the variable but never print its value.
+
+```bash
+pnpm --filter @diffsentinel/api prisma:generate   # once after install
+pnpm --filter @diffsentinel/api dev               # watch mode on http://localhost:3000
+pnpm --filter @diffsentinel/api test
+```
+
+When run directly on the host, the API needs PostgreSQL and Redis reachable at the URLs in your environment, for example from the Docker Compose stack below. Without them, the API still starts, but readiness reports `503`.
+
+| Endpoint                   | Purpose                                                                           |
+| -------------------------- | --------------------------------------------------------------------------------- |
+| `GET /api/v1/health`       | Liveness. `200` whenever the process is running; makes no dependency calls.       |
+| `GET /api/v1/health/ready` | Readiness. `200` if PostgreSQL and Redis both answer within 2 s, otherwise `503`. |
+| `GET /api/docs`            | OpenAPI (Swagger) UI. The raw document is at `/api/docs-json`.                    |

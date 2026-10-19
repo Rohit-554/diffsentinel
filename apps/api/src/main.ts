@@ -1,11 +1,18 @@
 import "reflect-metadata";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { ConsoleLogger } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import { configureApp } from "./app.setup";
 import { type AppConfig, ConfigValidationError, parseEnv } from "./config/env";
 
+// The repository-root .env, used when running on the host. It never overrides
+// variables that are already set, and containers simply don't have the file.
+const ROOT_ENV_FILE = join(__dirname, "..", "..", "..", ".env");
+
 function loadConfig(): AppConfig {
+  if (existsSync(ROOT_ENV_FILE)) process.loadEnvFile(ROOT_ENV_FILE);
   try {
     return parseEnv(process.env);
   } catch (err) {
