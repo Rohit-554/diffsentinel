@@ -33,7 +33,7 @@
 
 - [x] 5.1 Scaffold `apps/web` (`@diffsentinel/web`): Vite + React + TypeScript extending the base config, TanStack Query, React Router, Vitest + Testing Library + jsdom, and a Vite dev proxy for `/api` to `VITE_API_PROXY_TARGET` (default `http://localhost:3000`). Verify: `pnpm --filter @diffsentinel/web build` succeeds.
 - [x] 5.2 Implement the readiness fetch helper (200 and 503 bodies both count as data; a network error or invalid JSON means "API unavailable") and the `SystemStatus` view on route `/`, with text status per dependency and accessible markup. Verify: Vitest tests cover operational, degraded (`redis` down) and API-unreachable states.
-- [ ] 5.3 Add `VITE_API_PROXY_TARGET` to `.env.example` and document `pnpm --filter @diffsentinel/web dev` in `README.md`. Verify: with the API running on the host, the dev server at `http://localhost:5173` shows the status view.
+- [x] 5.3 Add `VITE_API_PROXY_TARGET` to `.env.example` and document `pnpm --filter @diffsentinel/web dev` in `README.md`. Verify: with the API running on the host, the dev server at `http://localhost:5173` shows the status view.
 
 ## 6. Containers and Docker Compose
 

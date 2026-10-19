@@ -64,3 +64,15 @@ uv run ruff check . && uv run ruff format --check . && uv run mypy
 | ------------------- | -------------------------------------------------------------- |
 | `GET /health`       | Liveness. `200` whenever the process is running.               |
 | `GET /health/ready` | Readiness. `200` if Redis answers within 2 s, otherwise `503`. |
+
+## Web (`apps/web`)
+
+A React + Vite dashboard. In Phase 0 it has a single page that shows the system status, read from the API readiness endpoint and refreshed every 10 seconds.
+
+```bash
+pnpm --filter @diffsentinel/web dev     # http://localhost:5173
+pnpm --filter @diffsentinel/web test
+pnpm --filter @diffsentinel/web build   # static files in apps/web/dist
+```
+
+The dev server proxies `/api` to `VITE_API_PROXY_TARGET` (default `http://localhost:3000`), so the browser talks to one origin and no CORS setup is needed. Start the API first. If it isn't running, the page shows "API unavailable".
