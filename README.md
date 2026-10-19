@@ -47,3 +47,20 @@ When run directly on the host, the API needs PostgreSQL and Redis reachable at t
 | `GET /api/v1/health`       | Liveness. `200` whenever the process is running; makes no dependency calls.       |
 | `GET /api/v1/health/ready` | Readiness. `200` if PostgreSQL and Redis both answer within 2 s, otherwise `503`. |
 | `GET /api/docs`            | OpenAPI (Swagger) UI. The raw document is at `/api/docs-json`.                    |
+
+## Reviewer (`services/reviewer`)
+
+The reviewer is a Python 3.12 service managed by uv. In Phase 0 it only serves health endpoints; in Phase 1 it becomes the queue-driven analysis worker. Like the API, it stops at startup if `REDIS_URL` is missing or invalid. When run from `services/reviewer` it also reads the repository-root `.env`.
+
+```bash
+cd services/reviewer
+uv sync                 # installs Python 3.12 if needed, plus dependencies
+uv run reviewer         # serves on http://localhost:8000 (REVIEWER_PORT)
+uv run pytest           # tests
+uv run ruff check . && uv run ruff format --check . && uv run mypy
+```
+
+| Endpoint            | Purpose                                                        |
+| ------------------- | -------------------------------------------------------------- |
+| `GET /health`       | Liveness. `200` whenever the process is running.               |
+| `GET /health/ready` | Readiness. `200` if Redis answers within 2 s, otherwise `503`. |
