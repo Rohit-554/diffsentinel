@@ -2,7 +2,7 @@
 
 ## 1. Repository and workspace setup
 
-- [ ] 1.1 Run `git init`; add `.gitignore` (`.env`, `node_modules`, `dist`, `.venv`, coverage, caches), `.gitattributes` (`* text=auto eol=lf`) and `.dockerignore`. Verify: `git check-ignore .env` prints `.env`.
+- [x] 1.1 Run `git init`; add `.gitignore` (`.env`, `node_modules`, `dist`, `.venv`, coverage, caches), `.gitattributes` (`* text=auto eol=lf`) and `.dockerignore`. Verify: `git check-ignore .env` prints `.env`.
 - [ ] 1.2 Create the root `package.json` (`packageManager: pnpm@9.15.9`, Node >=22, scripts `lint`/`format`/`typecheck`/`test`/`build`/`dev`), `pnpm-workspace.yaml` (`apps/*`, `packages/*`) and `.nvmrc`. Verify: `pnpm install` succeeds and writes `pnpm-lock.yaml`.
 - [ ] 1.3 Create `packages/config` with `tsconfig.base.json` (strict, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `noImplicitOverride`). Verify: the file is valid JSON and is listed as a workspace package by `pnpm ls -r --depth -1`.
 - [ ] 1.4 Add the root ESLint flat config (`typescript-eslint` type-checked with `projectService`, react-hooks scoped to `apps/web`) plus Prettier config and ignore files, as dev dependencies. Verify: `pnpm exec eslint --version` and `pnpm exec prettier --version` run.
