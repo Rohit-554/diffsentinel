@@ -64,7 +64,7 @@
   - **compose-smoke:** needs both; `up --wait`, curl both readiness endpoints, print logs on failure.
 
   Verify: the workflow YAML parses and every command in it has been run locally in the earlier groups.
-- [ ] 7.2 Add a CI badge placeholder and a "Quality gates" section to `README.md` that lists the commands CI runs. Verify: the listed commands match the workflow steps exactly.
+- [x] 7.2 Add a CI badge placeholder and a "Quality gates" section to `README.md` that lists the commands CI runs. Verify: the listed commands match the workflow steps exactly.
 
 ## 8. Foundational documentation
 

@@ -1,5 +1,7 @@
 # DiffSentinel
 
+[![CI](https://github.com/Rohit-554/diffsentinel/actions/workflows/ci.yml/badge.svg)](https://github.com/Rohit-554/diffsentinel/actions/workflows/ci.yml)
+
 DiffSentinel is a GitHub-connected code-review platform. It reviews pull requests, explains actionable findings with file and line evidence, and (in a later phase) proposes fixes as separate draft pull requests that a person must approve.
 
 **Status:** Phase 0 (foundation). The services start, report their health, and pass lint, typecheck and tests. GitHub integration and code review are not built yet. See [`AGENTS.md`](AGENTS.md) for the full product plan.
@@ -102,3 +104,33 @@ docker compose -f infra/docker-compose.yml logs -f api   # follow one service's 
 docker compose -f infra/docker-compose.yml down          # stop, keep data
 docker compose -f infra/docker-compose.yml down -v       # stop and delete all data
 ```
+
+## Quality gates
+
+CI (`.github/workflows/ci.yml`) runs on every push and pull request with a read-only token and no secrets. Run the same checks locally before pushing:
+
+```bash
+# TypeScript: node job
+pnpm install --frozen-lockfile
+pnpm --filter @diffsentinel/api prisma:generate
+pnpm lint          # ESLint (type-checked) + Prettier check
+pnpm typecheck
+pnpm test          # Jest (api) + Vitest (web)
+pnpm build
+
+# Python: python job (from services/reviewer)
+uv sync --frozen
+uv run ruff check .
+uv run ruff format --check .
+uv run mypy
+uv run pytest
+
+# Compose smoke test: compose-smoke job (from the repository root)
+docker compose -f infra/docker-compose.yml up -d --build --wait --wait-timeout 240
+curl -fsS http://127.0.0.1:3000/api/v1/health/ready
+curl -fsS http://127.0.0.1:8000/health/ready
+curl -fsS http://127.0.0.1:8080/api/v1/health/ready
+docker compose -f infra/docker-compose.yml down -v
+```
+
+Installs use the committed lockfiles only (`pnpm-lock.yaml`, `services/reviewer/uv.lock`), so a dependency change without a lockfile update fails CI.
