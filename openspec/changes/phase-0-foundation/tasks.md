@@ -25,7 +25,7 @@
 ## 4. Reviewer service (Python)
 
 - [x] 4.1 Scaffold `services/reviewer` with `uv`: `pyproject.toml` (`requires-python >=3.12,<3.13`, hatchling, `src/reviewer` package), `.python-version` 3.12, runtime dependencies (fastapi, uvicorn, pydantic-settings, redis) and a dev group (pytest, httpx, ruff, mypy), with Ruff and strict mypy config. Verify: `uv sync` installs Python 3.12 and writes `uv.lock`.
-- [ ] 4.2 Implement `Settings` (pydantic-settings: `REDIS_URL` required and must be `redis://` or `rediss://`, `REVIEWER_PORT` default 8000, `LOG_LEVEL` default `info`) and a JSON log formatter. Tests cover missing `REDIS_URL`, an invalid scheme, and the value not appearing in the error output. Verify: `uv run pytest` passes.
+- [x] 4.2 Implement `Settings` (pydantic-settings: `REDIS_URL` required and must be `redis://` or `rediss://`, `REVIEWER_PORT` default 8000, `LOG_LEVEL` default `info`) and a JSON log formatter. Tests cover missing `REDIS_URL`, an invalid scheme, and the value not appearing in the error output. Verify: `uv run pytest` passes.
 - [ ] 4.3 Implement `create_app(settings, redis_factory)` with a lifespan-managed `redis.asyncio` client, `GET /health` and `GET /health/ready` (2-second timeout, same body shape and error categories as the API), and an entry point that parses settings before starting uvicorn. Tests with a fake Redis cover up, down, hung, and liveness without Redis. Verify: `uv run pytest`, `uv run ruff check`, `uv run ruff format --check` and `uv run mypy` pass.
 - [ ] 4.4 Add the reviewer variables to `.env.example` and a reviewer section in `README.md` (`uv sync`, run, test). Verify: the documented run command starts the service and `GET /health` returns 200.
 

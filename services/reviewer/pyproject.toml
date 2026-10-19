@@ -30,7 +30,8 @@ src = ["src", "tests"]
 select = ["E", "W", "F", "I", "B", "UP", "S", "ASYNC", "RUF", "SIM", "PT"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S101"]
+# assert is how pytest works; tests use fake credentials to prove they never leak.
+"tests/**" = ["S101", "S105", "S106"]
 
 [tool.mypy]
 strict = true
