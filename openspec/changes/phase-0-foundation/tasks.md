@@ -46,7 +46,7 @@
   - `${VAR:-default}` substitution throughout.
 
   Verify: `docker compose -f infra/docker-compose.yml config` succeeds without a `.env` file.
-- [ ] 6.5 Start Docker Desktop and run `docker compose -f infra/docker-compose.yml up -d --build --wait`. Verify:
+- [x] 6.5 Start Docker Desktop and run `docker compose -f infra/docker-compose.yml up -d --build --wait`. Verify:
   - all services are healthy;
   - `curl localhost:3000/api/v1/health/ready` returns 200 with both dependencies up;
   - `curl localhost:8000/health/ready` returns 200;
