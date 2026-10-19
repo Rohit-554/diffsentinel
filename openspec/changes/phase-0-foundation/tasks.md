@@ -14,7 +14,7 @@
 - [x] 2.2 Implement the zod environment schema and `parseEnv` (`DATABASE_URL`, `REDIS_URL` required; `API_PORT`, `LOG_LEVEL`, `NODE_ENV` defaulted). Error messages list variable names and issues only. Write unit tests for: missing variable, malformed URL, port 70000, a malformed secret-bearing value not appearing in the error, and defaults applied. Verify: `pnpm --filter @diffsentinel/api test` passes.
 - [x] 2.3 Add a Prisma schema with a PostgreSQL datasource and generator only (no models), using the Prisma 6 built-in engine and the default CommonJS client. Add a `prisma:generate` script. Verify: `pnpm --filter @diffsentinel/api prisma:generate` succeeds.
 - [x] 2.4 Implement `PrismaService` and `RedisService` with `ping()` and shutdown hooks; Redis uses `enableOfflineQueue: false` and an `error` listener that logs codes only. Verify: unit tests with mocked clients cover a successful ping and the error listener not logging the URL.
-- [ ] 2.5 Add the API variables to `.env.example` with comments. Verify: every key read by the zod schema appears in `.env.example` (unit test or script compares the two).
+- [x] 2.5 Add the API variables to `.env.example` with comments. Verify: every key read by the zod schema appears in `.env.example` (unit test or script compares the two).
 
 ## 3. API health endpoints
 
