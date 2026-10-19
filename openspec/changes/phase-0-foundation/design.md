@@ -122,7 +122,8 @@ The root `pnpm-workspace.yaml` lists `apps/*` and `packages/*`. Root scripts cal
 ### D10. Containers and compose
 - **Images:** pinned to major.minor tags.
   - `postgres:17-alpine`, `redis:7.4-alpine`, `node:22-alpine`, `python:3.12-slim`.
-  - `nginxinc/nginx-unprivileged:1.27-alpine`, which runs as non-root on port 8080.
+  - `nginxinc/nginx-unprivileged:1.28-alpine` (current stable line), which runs as non-root on port 8080.
+  - Node images use `node:22.22-alpine`, matching the local minimum of Node 22.22.
 - **API image:**
   - Multi-stage build. It installs pnpm globally from npm instead of using corepack, which avoids corepack signature-key issues on older images.
   - Runs `pnpm install --frozen-lockfile --filter @diffsentinel/api...`, then `prisma generate` and `nest build`, then `pnpm deploy --prod`.
