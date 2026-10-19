@@ -14,9 +14,6 @@ coverage/
 npm-debug.log*
 pnpm-debug.log*
 
-# Prisma generated client
-apps/api/src/generated/
-
 # Python
 .venv/
 __pycache__/

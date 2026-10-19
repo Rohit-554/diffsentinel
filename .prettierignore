@@ -2,7 +2,6 @@ node_modules
 dist
 coverage
 pnpm-lock.yaml
-apps/api/src/generated
 services
 .claude
 openspec

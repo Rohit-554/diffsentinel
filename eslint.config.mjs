@@ -11,7 +11,6 @@ export default tseslint.config(
       "**/dist/**",
       "**/coverage/**",
       "**/.venv/**",
-      "apps/api/src/generated/**",
       "services/**",
     ],
   },
