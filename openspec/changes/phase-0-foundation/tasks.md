@@ -70,7 +70,7 @@
 
 - [x] 8.1 Write `docs/architecture.md`: the component diagram from `AGENTS.md` Ã‚Â§5 marked with what exists in Phase 0, process boundaries, health semantics, and the same-origin `/api` routing in dev and compose. Verify: every component and port named matches `infra/docker-compose.yml`.
 - [x] 8.2 Write `docs/data-model.md`: the planned tables from `AGENTS.md` Ã‚Â§6 with keys, the review idempotency unique constraint, the usersÃ¢â€ â€installations many-to-many, and a note that no tables exist until Phase 1. Verify: it covers all seven planned tables.
-- [ ] 8.3 Write `docs/threat-model.md`: assets, trust boundaries (GitHub, browser, API, worker, LLM provider), STRIDE threats per boundary mapped to the `AGENTS.md` Ã‚Â§9 controls, and which controls exist in Phase 0. Verify: every one of the 10 security rules is mapped to at least one threat.
+- [x] 8.3 Write `docs/threat-model.md`: assets, trust boundaries (GitHub, browser, API, worker, LLM provider), STRIDE threats per boundary mapped to the `AGENTS.md` Ã‚Â§9 controls, and which controls exist in Phase 0. Verify: every one of the 10 security rules is mapped to at least one threat.
 - [ ] 8.4 Write `docs/adr/0001-phase-0-stack-and-tooling.md` recording decisions D1Ã¢â‚¬â€œD11 with their alternatives. Verify: `pnpm exec prettier --check docs` passes.
 
 ## 9. Final verification
