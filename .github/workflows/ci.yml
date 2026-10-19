@@ -38,7 +38,7 @@ jobs:
         working-directory: services/reviewer
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.3.0 # this action publishes no moving major tag
         with:
           version: "0.8.3"
           working-directory: services/reviewer
