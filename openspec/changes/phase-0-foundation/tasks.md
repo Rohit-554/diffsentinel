@@ -77,5 +77,5 @@
 
 - [x] 9.1 From the repo root run `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm typecheck`, `pnpm test` and `pnpm build`. Verify: all exit 0; record the actual output summary.
 - [x] 9.2 In `services/reviewer` run `uv sync --frozen`, `uv run ruff check`, `uv run ruff format --check`, `uv run mypy` and `uv run pytest`. Verify: all exit 0; record the actual output summary.
-- [ ] 9.3 Re-run the full compose smoke check from 6.5 on the final tree. Verify: all services healthy and both readiness endpoints return 200, or record exactly what could not be run and why.
+- [x] 9.3 Re-run the full compose smoke check from 6.5 on the final tree. Verify: all services healthy and both readiness endpoints return 200, or record exactly what could not be run and why.
 - [ ] 9.4 Run `git status` and confirm no `.env`, secrets, `node_modules`, `dist` or `.venv` would be committed, and that `openspec validate phase-0-foundation --strict` passes.
