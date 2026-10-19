@@ -2,7 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-19
-- **Context source:** OpenSpec change `phase-0-foundation` (`openspec/changes/phase-0-foundation/design.md`)
+- **Context source:** OpenSpec change `phase-0-foundation` (`openspec/changes/archive/2026-10-19-phase-0-foundation/design.md`; requirements now live in `openspec/specs/`)
 
 ## Context
 
