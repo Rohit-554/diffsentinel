@@ -13,6 +13,23 @@ body {
   margin: 0;
 }
 
+/* Colour reinforces the status text; it is never the only signal. */
+.status-up {
+  color: light-dark(#116329, #3fb950);
+}
+
+.status-down {
+  color: light-dark(#b42318, #f85149);
+}
+
+.checks {
+  padding-left: 1.25rem;
+}
+
+.check-name {
+  font-family: ui-monospace, "Cascadia Code", Menlo, monospace;
+}
+
 main {
   max-width: 48rem;
   margin: 0 auto;
