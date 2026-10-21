@@ -22,6 +22,14 @@ RUN pnpm --filter @diffsentinel/api prisma:generate \
 # The production install in /out has its own @prisma/client, so generate into it.
 RUN cd /out && /repo/apps/api/node_modules/.bin/prisma generate --schema prisma/schema.prisma
 
+# One-shot schema migration (Compose "migrate" service). It reuses the build
+# stage because that has the Prisma CLI; the runtime image deliberately doesn't.
+FROM build AS migrate
+WORKDIR /repo/apps/api
+USER node
+CMD ["node_modules/.bin/prisma", "migrate", "deploy"]
+
+# Last stage, so it stays the default build target.
 FROM node:22.22-alpine AS runtime
 RUN apk add --no-cache openssl
 ENV NODE_ENV=production
