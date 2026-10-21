@@ -1,8 +1,10 @@
 import {
   Controller,
   Get,
+  HttpCode,
   Inject,
   Logger,
+  Post,
   Query,
   Req,
   Res,
@@ -10,7 +12,9 @@ import {
 } from "@nestjs/common";
 import {
   ApiExcludeEndpoint,
+  ApiForbiddenResponse,
   ApiFoundResponse,
+  ApiNoContentResponse,
   ApiOperation,
   ApiServiceUnavailableResponse,
   ApiTags,
@@ -26,6 +30,7 @@ import { GITHUB_OAUTH_CLIENT } from "../github/github.module";
 import { InstallationSyncService } from "../installations/installation-sync.service";
 import {
   clearPendingSignInCookieOptions,
+  clearSessionCookieOptions,
   parseCookies,
   PENDING_SIGN_IN_COOKIE,
   pendingSignInCookieOptions,
@@ -172,6 +177,31 @@ export class AuthController {
     this.sessions.purgeExpired().catch((err: unknown) => {
       this.logger.warn(`Could not purge expired sessions (${errorName(err)})`);
     });
+  }
+
+  /** Revokes the session and clears its cookie. Safe to call without a session. */
+  @Post("logout")
+  @HttpCode(204)
+  @ApiOperation({ summary: "Sign out." })
+  @ApiNoContentResponse({ description: "Signed out (or was not signed in)." })
+  @ApiForbiddenResponse({ description: "The request came from another site." })
+  async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response): Promise<void> {
+    const token = parseCookies(req.headers.cookie).get(SESSION_COOKIE);
+    const session = await this.sessions.resolve(token);
+    await this.sessions.revoke(token);
+    // Without GitHub configured no session could exist; clear with insecure defaults anyway.
+    res.clearCookie(
+      SESSION_COOKIE,
+      clearSessionCookieOptions(this.config.github?.publicBaseUrl ?? "http://localhost"),
+    );
+    if (session) {
+      await this.audit.record({
+        action: "auth.sign_out",
+        actorUserId: session.userId,
+        resourceType: "user",
+        resourceId: session.userId,
+      });
+    }
   }
 
   private requireGitHub(): { github: GitHubConfig; oauth: GitHubOAuthClient } {
