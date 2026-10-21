@@ -46,6 +46,61 @@ describe("parseEnv", () => {
     expect(problemsFor({ ...valid, LOG_LEVEL: "loud" })[0]).toMatch(/^LOG_LEVEL: /);
   });
 
+  describe("GitHub sign-in settings", () => {
+    const github = {
+      GITHUB_APP_CLIENT_ID: "Iv23liExample",
+      GITHUB_APP_CLIENT_SECRET: "client-secret-value-123",
+      GITHUB_APP_SLUG: "diffsentinel-dev",
+      PUBLIC_BASE_URL: "http://localhost:8080",
+    };
+
+    it("disables sign-in when none are set", () => {
+      expect(parseEnv(valid).github).toBeNull();
+    });
+
+    it("treats empty strings from Compose as unset", () => {
+      const empty = Object.fromEntries(Object.keys(github).map((k) => [k, ""]));
+      expect(parseEnv({ ...valid, ...empty }).github).toBeNull();
+    });
+
+    it("enables sign-in when all are set, normalising the base URL to an origin", () => {
+      const config = parseEnv({ ...valid, ...github, PUBLIC_BASE_URL: "http://localhost:8080/" });
+      expect(config.github).toEqual({
+        clientId: github.GITHUB_APP_CLIENT_ID,
+        clientSecret: github.GITHUB_APP_CLIENT_SECRET,
+        appSlug: github.GITHUB_APP_SLUG,
+        publicBaseUrl: "http://localhost:8080",
+      });
+    });
+
+    it("rejects a partial configuration, naming each missing variable without values", () => {
+      const err = (() => {
+        try {
+          parseEnv({ ...valid, GITHUB_APP_CLIENT_ID: github.GITHUB_APP_CLIENT_ID });
+        } catch (e) {
+          return e as ConfigValidationError;
+        }
+        throw new Error("expected parseEnv to throw");
+      })();
+      expect(err.problems.map((p) => p.split(":")[0])).toEqual([
+        "GITHUB_APP_CLIENT_SECRET",
+        "GITHUB_APP_SLUG",
+        "PUBLIC_BASE_URL",
+      ]);
+      expect(err.message).not.toContain(github.GITHUB_APP_CLIENT_ID);
+    });
+
+    it("rejects a public base URL with a path", () => {
+      const problems = problemsFor({ ...valid, ...github, PUBLIC_BASE_URL: "https://x.dev/app" });
+      expect(problems[0]).toMatch(/^PUBLIC_BASE_URL: /);
+    });
+
+    it("defaults the session lifetime to 8 hours and bounds it to 1-24", () => {
+      expect(parseEnv(valid).sessionTtlHours).toBe(8);
+      expect(problemsFor({ ...valid, SESSION_TTL_HOURS: "25" })[0]).toMatch(/^SESSION_TTL_HOURS: /);
+    });
+  });
+
   it("never includes the supplied value in errors", () => {
     const secret = "s3cr3t-Pa55word";
     const err = (() => {
