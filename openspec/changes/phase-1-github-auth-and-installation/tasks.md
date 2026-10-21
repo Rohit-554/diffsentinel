@@ -17,7 +17,7 @@
 
 ## 4. Sessions and sign-in
 
-- [ ] 4.1 Implement cookie helpers (`parseCookies`, session and pending cookie options derived from `PUBLIC_BASE_URL`) and the PKCE/state generator with a constant-time compare. Verify: unit tests for parsing edge cases, `Secure` only on https, and a challenge equal to base64url(SHA-256(verifier)).
+- [x] 4.1 Implement cookie helpers (`parseCookies`, session and pending cookie options derived from `PUBLIC_BASE_URL`) and the PKCE/state generator with a constant-time compare. Verify: unit tests for parsing edge cases, `Secure` only on https, and a challenge equal to base64url(SHA-256(verifier)).
 - [ ] 4.2 Implement `PendingSignInStore` on Redis (`auth:pending:<sha256(id)>`, 600 s TTL, single-use `GETDEL`). Verify: integration tests show a stored entry is readable once, absent on the second read, and gone after expiry.
 - [ ] 4.3 Implement `SessionService` (create with a random 32-byte value storing only its SHA-256, look up by cookie with an expiry check, delete, purge expired) and `SessionGuard` with the `@Authenticated()` decorator (401 with a fixed body). Verify: integration tests for create, lookup, expired session, forged value, and a database containing no raw cookie values.
 - [ ] 4.4 Implement `AuditService.record()`, usable inside transactions, which rejects metadata keys that look like secrets (`token`, `code`, `secret`, `session`). Verify: unit test for the rejection; integration test that an event is written in the caller's transaction and rolled back with it.
