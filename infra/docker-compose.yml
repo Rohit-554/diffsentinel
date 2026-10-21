@@ -45,6 +45,12 @@ services:
       API_PORT: "3000"
       LOG_LEVEL: ${LOG_LEVEL:-info}
       NODE_ENV: production
+      SESSION_TTL_HOURS: ${SESSION_TTL_HOURS:-8}
+      # GitHub sign-in: all empty leaves it disabled; see .env.example.
+      GITHUB_APP_CLIENT_ID: ${GITHUB_APP_CLIENT_ID:-}
+      GITHUB_APP_CLIENT_SECRET: ${GITHUB_APP_CLIENT_SECRET:-}
+      GITHUB_APP_SLUG: ${GITHUB_APP_SLUG:-}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-}
     ports:
       - "127.0.0.1:3000:3000"
     depends_on:

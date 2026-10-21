@@ -3,7 +3,7 @@
 ## 1. Configuration
 
 - [x] 1.1 Extend the API zod env schema with `GITHUB_APP_CLIENT_ID`, `GITHUB_APP_CLIENT_SECRET`, `GITHUB_APP_SLUG`, `PUBLIC_BASE_URL` (all-or-none; must be an http(s) origin with no path) and `SESSION_TTL_HOURS` (1–24, default 8), exposing `config.github: GitHubConfig | null`. Verify: unit tests cover none set (disabled), all set, partial set (error names the missing variables, no values) and a URL with a path; `.env.example` gains the variables (empty, commented) and its coverage test passes.
-- [ ] 1.2 Pass the new variables through `infra/docker-compose.yml` as `${VAR:-}`. Verify: `docker compose config` succeeds with no `.env` and the stack still starts with sign-in disabled.
+- [x] 1.2 Pass the new variables through `infra/docker-compose.yml` as `${VAR:-}`. Verify: `docker compose config` succeeds with no `.env` and the stack still starts with sign-in disabled.
 
 ## 2. Database schema and migrations
 
