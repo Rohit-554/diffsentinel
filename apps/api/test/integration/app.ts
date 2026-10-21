@@ -1,4 +1,4 @@
-import type { INestApplication } from "@nestjs/common";
+import type { INestApplication, LoggerService } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import type { Redis } from "ioredis";
 import type { App } from "supertest/types";
@@ -25,6 +25,8 @@ export interface TestAppOptions {
   /** Base URL of a fake GitHub serving both the web (OAuth) and REST endpoints. */
   githubBaseUrl?: string;
   fetchFn?: FetchFn;
+  /** Receives everything the app logs. Default: logging off. */
+  logger?: LoggerService;
 }
 
 /** The real application module wired to the test database, test Redis and a fake GitHub. */
@@ -51,7 +53,9 @@ export async function createTestApp(options: TestAppOptions = {}): Promise<INest
     .useValue(new GitHubUserClient(fetchFn, baseUrl))
     .compile();
 
-  const app = moduleRef.createNestApplication<INestApplication<App>>({ logger: false });
+  const app = moduleRef.createNestApplication<INestApplication<App>>({
+    logger: options.logger ?? false,
+  });
   configureApp(app);
   await app.init();
 
@@ -61,6 +65,22 @@ export async function createTestApp(options: TestAppOptions = {}): Promise<INest
     await new Promise<void>((resolve) => redis.once("ready", () => resolve()));
   }
   return app;
+}
+
+/** Records every log line, for asserting that secrets never reach the logs. */
+export class CapturingLogger implements LoggerService {
+  readonly lines: string[] = [];
+  private record = (...args: unknown[]) => {
+    this.lines.push(
+      args.map((a) => (a instanceof Error ? `${a.message} ${a.stack}` : String(a))).join(" "),
+    );
+  };
+  log = this.record;
+  error = this.record;
+  warn = this.record;
+  debug = this.record;
+  verbose = this.record;
+  fatal = this.record;
 }
 
 /** Parses Set-Cookie headers into name → { value, attributes }. */
