@@ -14,8 +14,30 @@ concurrency:
 
 jobs:
   node:
-    name: TypeScript (lint, typecheck, test, build)
+    name: TypeScript (lint, typecheck, test, integration, build)
     runs-on: ubuntu-latest
+    # Throwaway databases for the API integration tests; the credentials are CI-only.
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: diffsentinel
+          POSTGRES_PASSWORD: diffsentinel
+          POSTGRES_DB: diffsentinel
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U diffsentinel" --health-interval 5s --health-timeout 3s
+          --health-retries 10
+      redis:
+        image: redis:7.4-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 5s --health-timeout 3s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://diffsentinel:diffsentinel@localhost:5432/diffsentinel
+      REDIS_URL: redis://localhost:6379
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6 # version from packageManager in package.json
@@ -28,6 +50,7 @@ jobs:
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test
+      - run: pnpm --filter @diffsentinel/api test:integration
       - run: pnpm build
 
   python:

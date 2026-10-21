@@ -9,7 +9,7 @@
 
 - [x] 2.1 Add Prisma models for `users`, `installations`, `installation_members`, `repositories`, `repository_access`, `sessions` and `audit_events` per design D7 (snake_case mapping, UUID ids, unique and foreign-key constraints, cascades, indexes), then generate the first migration with `prisma migrate dev`. Verify: the migration applies to an empty database and `prisma migrate diff` reports no drift.
 - [x] 2.2 Add a `migrate` stage to `apps/api/Dockerfile` and a one-shot `migrate` service in Compose that `api` depends on (`service_completed_successfully`); add `prisma:migrate:dev` and `prisma:migrate:deploy` scripts. Verify: `docker compose up --build --wait` from an empty volume applies the migration before the API becomes healthy, and the runtime image still has no Prisma CLI.
-- [ ] 2.3 Add an `integration` Jest project (`pnpm --filter @diffsentinel/api test:integration`) that runs against `DATABASE_URL`/`REDIS_URL`, resetting the schema per run, with a first test proving every table and unique constraint exists. Add Postgres and Redis service containers and this step to the CI `node` job. Verify: passes locally against the Compose databases, and in CI.
+- [x] 2.3 Add an `integration` Jest project (`pnpm --filter @diffsentinel/api test:integration`) that runs against `DATABASE_URL`/`REDIS_URL`, resetting the schema per run, with a first test proving every table and unique constraint exists. Add Postgres and Redis service containers and this step to the CI `node` job. Verify: passes locally against the Compose databases, and in CI.
 
 ## 3. GitHub client
 
