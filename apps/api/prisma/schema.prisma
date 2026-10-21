@@ -1,7 +1,5 @@
-// DiffSentinel database schema.
-// Phase 0 has no models: Prisma is wired up so the connection, client
-// generation and migration workflow are proven before Phase 1 adds tables.
-// See docs/data-model.md for the planned tables.
+// DiffSentinel database schema. Change it only through migrations
+// (pnpm --filter @diffsentinel/api prisma:migrate:dev). See docs/data-model.md.
 
 generator client {
   provider      = "prisma-client-js"
@@ -12,4 +10,124 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+/// A person who signed in with GitHub. Signing in grants no repository access.
+model User {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  githubUserId BigInt   @unique @map("github_user_id")
+  login        String
+  displayName  String?  @map("display_name")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  memberships      InstallationMember[]
+  repositoryAccess RepositoryAccess[]
+  sessions         Session[]
+  auditEvents      AuditEvent[]
+
+  @@map("users")
+}
+
+enum InstallationStatus {
+  active
+  suspended
+  removed
+
+  @@map("installation_status")
+}
+
+/// A GitHub App installation on a user or organization account. Shared by its members.
+model Installation {
+  id                   String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  githubInstallationId BigInt             @unique @map("github_installation_id")
+  accountId            BigInt             @map("account_id")
+  accountLogin         String             @map("account_login")
+  accountType          String             @map("account_type")
+  status               InstallationStatus @default(active)
+  createdAt            DateTime           @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt            DateTime           @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  members      InstallationMember[]
+  repositories Repository[]
+
+  @@map("installations")
+}
+
+/// A user's access to an installation, as last verified with GitHub.
+model InstallationMember {
+  userId                String   @map("user_id") @db.Uuid
+  installationId        String   @map("installation_id") @db.Uuid
+  verifiedAt            DateTime @map("verified_at") @db.Timestamptz(3)
+  /// The sync stopped at its repository cap for this user and installation.
+  repositoriesTruncated Boolean  @default(false) @map("repositories_truncated")
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  installation Installation @relation(fields: [installationId], references: [id], onDelete: Cascade)
+
+  @@id([userId, installationId])
+  @@index([installationId])
+  @@map("installation_members")
+}
+
+model Repository {
+  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  githubRepositoryId BigInt   @unique @map("github_repository_id")
+  installationId     String   @map("installation_id") @db.Uuid
+  fullName           String   @map("full_name")
+  defaultBranch      String   @map("default_branch")
+  private            Boolean
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt          DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  installation Installation       @relation(fields: [installationId], references: [id], onDelete: Cascade)
+  access       RepositoryAccess[]
+
+  @@index([installationId])
+  @@map("repositories")
+}
+
+/// A repository GitHub reported as accessible to the user at the last sync.
+model RepositoryAccess {
+  userId       String   @map("user_id") @db.Uuid
+  repositoryId String   @map("repository_id") @db.Uuid
+  verifiedAt   DateTime @map("verified_at") @db.Timestamptz(3)
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  repository Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+
+  @@id([userId, repositoryId])
+  @@index([repositoryId])
+  @@map("repository_access")
+}
+
+/// Server-side session. Only a SHA-256 hash of the cookie value is stored.
+model Session {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  tokenHash Bytes    @unique @map("token_hash")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  expiresAt DateTime @map("expires_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+/// Append-only record of security-relevant actions. Never holds tokens or codes.
+model AuditEvent {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  actorUserId  String?  @map("actor_user_id") @db.Uuid
+  action       String
+  resourceType String?  @map("resource_type")
+  resourceId   String?  @map("resource_id")
+  metadata     Json     @default("{}")
+  occurredAt   DateTime @default(now()) @map("occurred_at") @db.Timestamptz(3)
+
+  actor User? @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([actorUserId, occurredAt])
+  @@map("audit_events")
 }
