@@ -28,7 +28,7 @@
 
 ## 5. Tenant access and installation endpoints
 
-- [ ] 5.1 Implement `TenantScope` (`installationsFor`, `repositoriesFor`, `assertInstallationVisible`) as the only builder of tenant filters (membership present, status not `removed`, `repository_access` for repositories). Verify: integration tests with users X and Y on a shared installation and a private repository visible only to X.
+- [x] 5.1 Implement `TenantScope` (`installationsFor`, `repositoriesFor`, `assertInstallationVisible`) as the only builder of tenant filters (membership present, status not `removed`, `repository_access` for repositories). Verify: integration tests with users X and Y on a shared installation and a private repository visible only to X.
 - [ ] 5.2 Implement `GET /api/v1/installations` (account login and type, status, accessible repository count, truncated flag), `GET /api/v1/repositories?installationId=` (zod UUID → 400; a non-member gets the same 404 as an unknown ID) and `GET /api/v1/installations/install-url`, all behind `@Authenticated()` and documented in OpenAPI. Verify: the tenant-access integration suite calls every tenant-scoped endpoint as a member, a non-member and an unauthenticated client, and checks that 404 bodies for "not yours" and "doesn't exist" are byte-identical; plus a test that removing a membership revokes access in an already-open second session.
 
 ## 6. Web

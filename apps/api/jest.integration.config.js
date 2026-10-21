@@ -12,6 +12,8 @@ module.exports = {
     "^.+\\.ts$": ["ts-jest", { tsconfig: "<rootDir>/tsconfig.json" }],
   },
   moduleFileExtensions: ["ts", "js", "json"],
+  // Real database round-trips, including Prisma engine start-up, outgrow the 5 s default.
+  testTimeout: 30_000,
   // Tests share one database, so run files one at a time.
   maxWorkers: 1,
 };
