@@ -1,4 +1,5 @@
 import { Redis } from "ioredis";
+import { sha256 } from "../../src/auth/crypto";
 import { PendingSignInStore } from "../../src/auth/pending-sign-in.store";
 import { testRedisUrl } from "./test-env";
 
@@ -20,12 +21,13 @@ describe("PendingSignInStore", () => {
 
   it("stores entries under a hash of the cookie value, with a 10-minute TTL", async () => {
     const id = await store.create(pending);
-    const keys = await redis.keys("auth:pending:*");
-    expect(keys.some((k) => k.includes(id))).toBe(false);
+    const key = `auth:pending:${sha256(id).toString("hex")}`;
+    expect(await redis.exists(key)).toBe(1);
+    expect(await redis.exists(`auth:pending:${id}`)).toBe(0);
 
-    const ttls = await Promise.all(keys.map((k) => redis.ttl(k)));
-    expect(Math.max(...ttls)).toBeGreaterThan(590);
-    expect(Math.max(...ttls)).toBeLessThanOrEqual(600);
+    const ttl = await redis.ttl(key);
+    expect(ttl).toBeGreaterThan(590);
+    expect(ttl).toBeLessThanOrEqual(600);
     await store.consume(id);
   });
 
@@ -42,8 +44,7 @@ describe("PendingSignInStore", () => {
 
   it("returns nothing for a corrupted entry", async () => {
     const id = await store.create(pending);
-    const [key] = await redis.keys("auth:pending:*");
-    await redis.set(key!, "{not json");
+    await redis.set(`auth:pending:${sha256(id).toString("hex")}`, "{not json");
     expect(await store.consume(id)).toBeNull();
   });
 });

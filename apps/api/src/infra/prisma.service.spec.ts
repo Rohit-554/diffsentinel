@@ -4,6 +4,7 @@ import { PrismaService } from "./prisma.service";
 function setup() {
   const client = {
     $queryRaw: jest.fn().mockResolvedValue([{ "?column?": 1 }]),
+    $connect: jest.fn().mockResolvedValue(undefined),
     $disconnect: jest.fn().mockResolvedValue(undefined),
   };
   const service = new PrismaService(client as unknown as PrismaClient);
@@ -21,6 +22,18 @@ describe("PrismaService", () => {
     const { client, service } = setup();
     client.$queryRaw.mockRejectedValue(new Error("Can't reach database server"));
     await expect(service.ping()).rejects.toThrow();
+  });
+
+  it("connects at startup", async () => {
+    const { client, service } = setup();
+    await service.onModuleInit();
+    expect(client.$connect).toHaveBeenCalledTimes(1);
+  });
+
+  it("still starts when the database is unreachable", async () => {
+    const { client, service } = setup();
+    client.$connect.mockRejectedValue(new Error("Can't reach database server"));
+    await expect(service.onModuleInit()).resolves.toBeUndefined();
   });
 
   it("disconnects on shutdown", async () => {

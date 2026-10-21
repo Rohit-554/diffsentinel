@@ -29,6 +29,7 @@
     "@nestjs/cli": "^11",
     "@nestjs/schematics": "^11",
     "@nestjs/testing": "^11",
+    "@types/express": "^5",
     "@types/jest": "^30.0.0",
     "@types/node": "^22",
     "@types/supertest": "^7.2.1",

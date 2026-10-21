@@ -1,4 +1,5 @@
 import { type DynamicModule, Module } from "@nestjs/common";
+import { AuthModule } from "./auth/auth.module";
 import { ConfigModule } from "./config/config.module";
 import type { AppConfig } from "./config/env";
 import { HealthModule } from "./health/health.module";
@@ -10,7 +11,7 @@ export class AppModule {
   static register(config: AppConfig): DynamicModule {
     return {
       module: AppModule,
-      imports: [ConfigModule.forRoot(config), InfraModule, HealthModule],
+      imports: [ConfigModule.forRoot(config), InfraModule, HealthModule, AuthModule],
     };
   }
 }
