@@ -1,11 +1,11 @@
 import { Module } from "@nestjs/common";
-import { AuditModule } from "../audit/audit.module";
-import { GitHubModule } from "../github/github.module";
-import { InstallationSyncService } from "./installation-sync.service";
+import { AuthModule } from "../auth/auth.module";
+import { AuthzModule } from "../authz/authz.module";
+import { InstallationsController } from "./installations.controller";
 
+/** Dashboard reads of installations and repositories. */
 @Module({
-  imports: [AuditModule, GitHubModule],
-  providers: [InstallationSyncService],
-  exports: [InstallationSyncService],
+  imports: [AuthModule, AuthzModule],
+  controllers: [InstallationsController],
 })
 export class InstallationsModule {}

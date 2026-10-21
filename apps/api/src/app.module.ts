@@ -4,6 +4,7 @@ import { ConfigModule } from "./config/config.module";
 import type { AppConfig } from "./config/env";
 import { HealthModule } from "./health/health.module";
 import { InfraModule } from "./infra/infra.module";
+import { InstallationsModule } from "./installations/installations.module";
 
 @Module({})
 export class AppModule {
@@ -11,7 +12,13 @@ export class AppModule {
   static register(config: AppConfig): DynamicModule {
     return {
       module: AppModule,
-      imports: [ConfigModule.forRoot(config), InfraModule, HealthModule, AuthModule],
+      imports: [
+        ConfigModule.forRoot(config),
+        InfraModule,
+        HealthModule,
+        AuthModule,
+        InstallationsModule,
+      ],
     };
   }
 }

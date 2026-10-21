@@ -2,7 +2,7 @@ import { Module } from "@nestjs/common";
 import { APP_GUARD } from "@nestjs/core";
 import { AuditModule } from "../audit/audit.module";
 import { GitHubModule } from "../github/github.module";
-import { InstallationsModule } from "../installations/installations.module";
+import { InstallationSyncModule } from "../installations/installation-sync.module";
 import { AuthController } from "./auth.controller";
 import { MeController } from "./me.controller";
 import { PendingSignInStore } from "./pending-sign-in.store";
@@ -12,7 +12,7 @@ import { SessionService } from "./session.service";
 
 /** GitHub sign-in, sessions and the guard other modules use to require a session. */
 @Module({
-  imports: [AuditModule, GitHubModule, InstallationsModule],
+  imports: [AuditModule, GitHubModule, InstallationSyncModule],
   controllers: [AuthController, MeController],
   providers: [
     PendingSignInStore,
