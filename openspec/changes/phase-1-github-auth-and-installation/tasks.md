@@ -13,7 +13,7 @@
 
 ## 3. GitHub client
 
-- [ ] 3.1 Implement `GitHubOAuthClient` (authorize-URL builder, code exchange with PKCE verifier) and `GitHubUserClient` (`GET /user`, `/user/installations`, `/user/installations/{id}/repositories`) over `fetch` with 10 s timeouts, the documented headers, zod response schemas, `per_page=100` pagination with caps, and a `GitHubUnavailableError` that carries only a category and HTTP status. Verify: unit tests with a fake `fetch` cover success, timeout, non-2xx, schema mismatch, pagination stopping at the cap (with a truncated flag), and that no body or token appears in error messages or logs.
+- [x] 3.1 Implement `GitHubOAuthClient` (authorize-URL builder, code exchange with PKCE verifier) and `GitHubUserClient` (`GET /user`, `/user/installations`, `/user/installations/{id}/repositories`) over `fetch` with 10 s timeouts, the documented headers, zod response schemas, `per_page=100` pagination with caps, and a `GitHubUnavailableError` that carries only a category and HTTP status. Verify: unit tests with a fake `fetch` cover success, timeout, non-2xx, schema mismatch, pagination stopping at the cap (with a truncated flag), and that no body or token appears in error messages or logs.
 
 ## 4. Sessions and sign-in
 
