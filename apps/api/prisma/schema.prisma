@@ -14,12 +14,14 @@ datasource db {
 
 /// A person who signed in with GitHub. Signing in grants no repository access.
 model User {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  githubUserId BigInt   @unique @map("github_user_id")
-  login        String
-  displayName  String?  @map("display_name")
-  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  id                     String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  githubUserId           BigInt   @unique @map("github_user_id")
+  login                  String
+  displayName            String?  @map("display_name")
+  /// The last sync stopped at its installation cap.
+  installationsTruncated Boolean  @default(false) @map("installations_truncated")
+  createdAt              DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt              DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   memberships      InstallationMember[]
   repositoryAccess RepositoryAccess[]
