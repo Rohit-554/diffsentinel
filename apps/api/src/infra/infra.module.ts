@@ -32,6 +32,6 @@ import { REDIS_CLIENT, RedisService } from "./redis.service";
     PrismaService,
     RedisService,
   ],
-  exports: [PrismaService, RedisService],
+  exports: [PRISMA_CLIENT, REDIS_CLIENT, PrismaService, RedisService],
 })
 export class InfraModule {}
